@@ -1,0 +1,52 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --bg: 250 249 247;
+  --surface: 255 255 255;
+  --sunken: 244 242 238;
+  --line: 230 226 219;
+  --fg: 22 19 28;
+  --muted: 102 96 112;
+  --orange: 196 78 8;
+  --purple: 99 52 196;
+  --on-brand: 255 255 255;
+  --pos: 17 120 82;
+  --neg: 190 45 45;
+  --warn: 160 100 0;
+  color-scheme: light;
+}
+
+.dark {
+  --bg: 15 13 20;
+  --surface: 24 21 31;
+  --sunken: 33 29 43;
+  --line: 48 43 60;
+  --fg: 244 241 248;
+  --muted: 163 156 175;
+  --orange: 255 138 70;
+  --purple: 167 134 255;
+  --on-brand: 24 14 48;
+  --pos: 80 205 155;
+  --neg: 255 125 125;
+  --warn: 240 185 80;
+  color-scheme: dark;
+}
+
+body {
+  background: rgb(var(--bg));
+  color: rgb(var(--fg));
+}
+
+:focus-visible {
+  outline: 2px solid rgb(var(--purple));
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}

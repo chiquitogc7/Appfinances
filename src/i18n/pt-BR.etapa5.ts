@@ -1,0 +1,62 @@
+/** Textos da Etapa 5: login, nuvem, primeiros passos. */
+export const etapa5 = {
+  authErrors: {
+    invalidCredentials: "E-mail ou senha incorretos.",
+    invalidEmail: "Informe um e-mail válido.",
+    emailRequired: "Informe o e-mail.",
+    passwordRequired: "Informe a senha.",
+    passwordShort: "Use ao menos 8 caracteres.",
+    passwordMismatch: "As senhas não são iguais.",
+    emailInUse: "Já existe uma conta com este e-mail. Entre ou recupere a senha.",
+    weakPassword: "Senha fraca demais. Use ao menos 8 caracteres.",
+    tooManyRequests: "Muitas tentativas. Aguarde alguns minutos e tente de novo.",
+    network: "Sem conexão. Verifique a internet e tente de novo.",
+    popupBlocked: "O navegador bloqueou a janela do Google. Libere pop-ups para este site.",
+    disabled: "Esta conta está desativada.",
+    generic: "Não foi possível concluir. Tente novamente.",
+    unavailable: "Login indisponível: o Firebase não está configurado.",
+  },
+  auth: {
+    google: "Continuar com o Google",
+    or: "ou",
+    submitting: "Aguarde...",
+    resetSent: "Se este e-mail tiver uma conta, enviamos um link para redefinir a senha. Confira também o spam.",
+    passwordHint: "Mínimo de 8 caracteres.",
+    verify: {
+      title: "Confirme seu e-mail",
+      body: "Enviamos um link de confirmação para {email}. Abra o e-mail, clique no link e volte aqui. Seus dados só ficam acessíveis depois da confirmação.",
+      done: "Já confirmei",
+      resend: "Reenviar e-mail",
+      resent: "E-mail reenviado.",
+      notYet: "Ainda não consta como confirmado. Confira o link e tente de novo.",
+      wait: "Aguarde {seconds}s para reenviar.",
+    },
+    signOut: "Sair",
+    signedAs: "Conectado como {email}",
+    loading: "Carregando sua conta",
+    cloudError: "Não foi possível abrir seus dados na nuvem. Verifique a conexão e tente de novo.",
+  },
+  cloud: {
+    saveError: "Não foi possível salvar na nuvem agora. Vamos tentar de novo automaticamente; suas alterações continuam nesta tela.",
+  },
+  firstSteps: {
+    title: "Primeiros passos",
+    body: "Sua conta está vazia. Comece pelo que dá o retrato real do seu dinheiro.",
+    account: "Cadastre uma conta com o saldo de hoje",
+    card: "Cadastre seus cartões de crédito",
+    movement: "Lance as primeiras movimentações",
+    budget: "Defina orçamentos e metas",
+  },
+  settings: {
+    security: {
+      cloud: "Seus dados ficam na sua conta, na nuvem (Cloud Firestore), e só você consegue acessá-los depois de entrar.",
+      signedAs: "Conectado como {email}.",
+      signOut: "Encerrar sessão",
+      cloudImport: "Restaurar um backup substitui os dados da sua conta na nuvem.",
+    },
+  },
+  landing: {
+    ctaCloud: "Entrar",
+    ctaCloudNote: "Ainda não tem conta? Crie em um minuto.",
+  },
+} as const;

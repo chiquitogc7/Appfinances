@@ -1,0 +1,140 @@
+rules_version = '2';
+
+// ESCRITO, MAS AINDA NÃO EXECUTADO CONTRA O EMULADOR (o ambiente de desenvolvimento não conseguiu baixá-lo).
+// Antes de ir para produção rode:  npm run test:rules   (veja DEPLOY.md).
+//
+// Modelo: cada pessoa só enxerga users/{seu uid}/..., e só com e-mail confirmado.
+// Tudo fora disso é negado. As validações abaixo são uma segunda barreira (a primeira é o próprio app).
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isOwner(uid) {
+      return request.auth != null
+        && request.auth.uid == uid
+        && request.auth.token.email_verified == true;
+    }
+    function isCents(v)  { return v is int && v >= 0 && v <= 99999999999; }
+    function isInt(v)    { return v is int && v >= -99999999999 && v <= 99999999999; }
+    function isDate(v)   { return v is string && v.matches('^[0-9]{4}-[0-9]{2}-[0-9]{2}$'); }
+    function isText(v, max) { return v is string && v.size() <= max; }
+    function isDay(v)    { return v is int && v >= 1 && v <= 31; }
+    function small(d)    { return d.keys().size() <= 40; }
+
+    function validTransaction(d, id) {
+      return small(d)
+        && d.keys().hasAll(['id', 'kind', 'amount', 'date', 'status', 'description'])
+        && d.id == id
+        && d.kind in ['income', 'expense', 'transfer', 'invoice_payment', 'card_refund']
+        && d.status in ['realized', 'planned']
+        && isCents(d.amount)
+        && isDate(d.date)
+        && isText(d.description, 200);
+    }
+    function validAccount(d, id) {
+      return small(d)
+        && d.keys().hasAll(['id', 'name', 'type', 'initialBalance', 'referenceDate'])
+        && d.id == id
+        && isText(d.name, 100)
+        && d.type in ['checking', 'savings', 'cash', 'investment', 'wallet']
+        && isInt(d.initialBalance)
+        && isDate(d.referenceDate);
+    }
+    function validCard(d, id) {
+      return small(d)
+        && d.keys().hasAll(['id', 'name', 'limit', 'closingDay', 'dueDay', 'payAccountId'])
+        && d.id == id
+        && isText(d.name, 100)
+        && isCents(d.limit)
+        && isDay(d.closingDay)
+        && isDay(d.dueDay);
+    }
+    function validCategory(d, id) {
+      return small(d)
+        && d.keys().hasAll(['id', 'name', 'kind'])
+        && d.id == id
+        && isText(d.name, 100)
+        && d.kind in ['expense', 'income'];
+    }
+    function validBudget(d, id) {
+      return small(d)
+        && d.keys().hasAll(['categoryId', 'monthlyLimit'])
+        && d.categoryId == id
+        && isCents(d.monthlyLimit);
+    }
+    function validGoal(d, id) {
+      return small(d)
+        && d.keys().hasAll(['id', 'name', 'target', 'saved', 'deadline'])
+        && d.id == id
+        && isText(d.name, 100)
+        && isCents(d.target)
+        && isCents(d.saved)
+        && isDate(d.deadline);
+    }
+    function validInvestment(d, id) {
+      return small(d)
+        && d.keys().hasAll(['id', 'name', 'category', 'applied', 'current', 'referenceDate'])
+        && d.id == id
+        && isText(d.name, 100)
+        && isText(d.category, 100)
+        && isCents(d.applied)
+        && isCents(d.current)
+        && isDate(d.referenceDate);
+    }
+    function validRecurrence(d, id) {
+      return small(d)
+        && d.keys().hasAll(['id', 'kind', 'amount', 'description', 'frequency', 'startDate', 'active'])
+        && d.id == id
+        && d.kind in ['income', 'expense']
+        && d.frequency in ['weekly', 'monthly', 'yearly']
+        && isCents(d.amount)
+        && isText(d.description, 200)
+        && isDate(d.startDate)
+        && d.active is bool;
+    }
+
+    match /users/{uid}/meta/{docId} {
+      allow read: if isOwner(uid);
+      allow create, update: if isOwner(uid)
+        && docId == 'profile'
+        && request.resource.data.keys().hasOnly(['schemaVersion', 'createdAt']);
+      allow delete: if false;
+    }
+    match /users/{uid}/transactions/{id} {
+      allow read, delete: if isOwner(uid);
+      allow create, update: if isOwner(uid) && validTransaction(request.resource.data, id);
+    }
+    match /users/{uid}/accounts/{id} {
+      allow read, delete: if isOwner(uid);
+      allow create, update: if isOwner(uid) && validAccount(request.resource.data, id);
+    }
+    match /users/{uid}/cards/{id} {
+      allow read, delete: if isOwner(uid);
+      allow create, update: if isOwner(uid) && validCard(request.resource.data, id);
+    }
+    match /users/{uid}/categories/{id} {
+      allow read, delete: if isOwner(uid);
+      allow create, update: if isOwner(uid) && validCategory(request.resource.data, id);
+    }
+    match /users/{uid}/budgets/{id} {
+      allow read, delete: if isOwner(uid);
+      allow create, update: if isOwner(uid) && validBudget(request.resource.data, id);
+    }
+    match /users/{uid}/goals/{id} {
+      allow read, delete: if isOwner(uid);
+      allow create, update: if isOwner(uid) && validGoal(request.resource.data, id);
+    }
+    match /users/{uid}/investments/{id} {
+      allow read, delete: if isOwner(uid);
+      allow create, update: if isOwner(uid) && validInvestment(request.resource.data, id);
+    }
+    match /users/{uid}/recurrences/{id} {
+      allow read, delete: if isOwner(uid);
+      allow create, update: if isOwner(uid) && validRecurrence(request.resource.data, id);
+    }
+
+    // Qualquer outro caminho: negado.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
